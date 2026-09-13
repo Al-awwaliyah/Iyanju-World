@@ -1,5 +1,3 @@
-// src/hooks/useAuth.ts
-
 import { useCallback, useEffect, useState } from "react";
 
 import {
@@ -35,7 +33,7 @@ interface UseAuthState {
 interface UseAuthActions {
   signIn: (
     email: string,
-    password: string,
+    password: string
   ) => Promise<{
     success: boolean;
     error?: string;
@@ -44,7 +42,7 @@ interface UseAuthActions {
   signUp: (
     email: string,
     password: string,
-    metadata: SignUpMetadata,
+    metadata: SignUpMetadata
   ) => Promise<{
     success: boolean;
     requiresEmailConfirmation: boolean;
@@ -57,14 +55,14 @@ interface UseAuthActions {
   }>;
 
   sendPasswordReset: (
-    email: string,
+    email: string
   ) => Promise<{
     success: boolean;
     error?: string;
   }>;
 
   changePassword: (
-    password: string,
+    password: string
   ) => Promise<{
     success: boolean;
     error?: string;
@@ -142,11 +140,17 @@ export function useAuth(): UseAuthResult {
   }, [loadAuthState]);
 
   const signIn = useCallback(
-    async (email: string, password: string) => {
+    async (
+      email: string,
+      password: string
+    ): Promise<{
+      success: boolean;
+      error?: string;
+    }> => {
       try {
         const result = await signInWithPassword(
           email,
-          password,
+          password
         );
 
         if (result.error) {
@@ -172,20 +176,24 @@ export function useAuth(): UseAuthResult {
         };
       }
     },
-    [loadAuthState],
+    [loadAuthState]
   );
 
   const signUp = useCallback(
     async (
       email: string,
       password: string,
-      metadata: SignUpMetadata,
-    ) => {
+      metadata: SignUpMetadata
+    ): Promise<{
+      success: boolean;
+      requiresEmailConfirmation: boolean;
+      error?: string;
+    }> => {
       try {
         const result = await signUpWithPassword(
           email,
           password,
-          metadata,
+          metadata
         );
 
         if (result.error) {
@@ -196,10 +204,25 @@ export function useAuth(): UseAuthResult {
           };
         }
 
+        /*
+         * Supabase returns a session when the user can be
+         * authenticated immediately. When email confirmation
+         * is required, the user is created but no session is
+         * returned.
+         *
+         * Do NOT read result.requiresEmailConfirmation because
+         * signUpWithPassword() does not expose that property.
+         */
+        const requiresEmailConfirmation =
+          !result.data?.session;
+
+        if (!requiresEmailConfirmation) {
+          await loadAuthState();
+        }
+
         return {
           success: true,
-          requiresEmailConfirmation:
-            Boolean(result.requiresEmailConfirmation),
+          requiresEmailConfirmation,
         };
       } catch (error) {
         logAppError(error, {
@@ -213,17 +236,20 @@ export function useAuth(): UseAuthResult {
         };
       }
     },
-    [],
+    [loadAuthState]
   );
 
   const signOutUser = useCallback(async () => {
     try {
       const result = await signOut();
 
-      if (result.error) {
+      if (!result.success) {
         return {
           success: false,
-          error: getSafeErrorMessage(result.error),
+          error:
+            result.error
+              ? getSafeErrorMessage(result.error)
+              : "Unable to sign out.",
         };
       }
 
@@ -251,7 +277,9 @@ export function useAuth(): UseAuthResult {
   }, []);
 
   const sendPasswordReset = useCallback(
-    async (email: string): Promise<{
+    async (
+      email: string
+    ): Promise<{
       success: boolean;
       error?: string;
     }> => {
@@ -279,11 +307,13 @@ export function useAuth(): UseAuthResult {
         };
       }
     },
-    [],
+    []
   );
 
   const changePassword = useCallback(
-    async (password: string): Promise<{
+    async (
+      password: string
+    ): Promise<{
       success: boolean;
       error?: string;
     }> => {
@@ -311,19 +341,25 @@ export function useAuth(): UseAuthResult {
         };
       }
     },
-    [],
+    []
   );
 
   const refresh = useCallback(async () => {
     try {
       await refreshSession();
 
-      await Promise.all([
+      const [user, profile] = await Promise.all([
         getCurrentUser(),
         getCurrentProfile(),
       ]);
 
-      await loadAuthState();
+      setState({
+        user,
+        profile,
+        role: profile?.role ?? null,
+        loading: false,
+        initialized: true,
+      });
     } catch (error) {
       logAppError(error, {
         context: "useAuth.refresh",
@@ -350,3 +386,4 @@ export function useAuth(): UseAuthResult {
 }
 
 export default useAuth;
+
