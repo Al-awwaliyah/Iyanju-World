@@ -44,14 +44,14 @@ export default function BusinessCard(props: BusinessCardProps) {
   return (
     <article
       className={[
-        "group overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-md",
+        "group overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
       <Link
-        to={`/businesses/${safeSlug}`}
+        to={`/store/${safeSlug}`}
         className="block"
         aria-label={`View ${safeName}`}
       >
@@ -96,7 +96,6 @@ export default function BusinessCard(props: BusinessCardProps) {
               <Badge
                 variant="info"
                 size="sm"
-                className="bg-brand-50 text-brand-700"
               >
                 Verified
               </Badge>

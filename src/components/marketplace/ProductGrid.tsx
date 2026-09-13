@@ -23,11 +23,9 @@ const columnStyles: Record<
   6: "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6",
 };
 
-const GAP_CLASS = "gap-3 sm:gap-4";
-
 function ProductCardSkeleton() {
   return (
-    <div className="overflow-hidden rounded-md border border-slate-200 bg-white">
+    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
       <Skeleton className="aspect-square w-full rounded-none" />
 
       <div className="space-y-3 p-4">
@@ -64,8 +62,7 @@ export default function ProductGrid({
     return (
       <div
         className={[
-          "grid",
-          GAP_CLASS,
+          "grid gap-4 sm:gap-5",
           viewMode === "list"
             ? "grid-cols-1"
             : columnStyles[columns],
@@ -102,8 +99,7 @@ export default function ProductGrid({
   return (
     <div
       className={[
-        "grid",
-        GAP_CLASS,
+        "grid gap-4 sm:gap-5",
         columnStyles[columns],
         className,
       ]

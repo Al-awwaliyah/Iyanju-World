@@ -103,7 +103,7 @@ export default function CartSummary({
           >
             <Button
               type="button"
-              variant="brand"
+              variant="primary"
               size="lg"
               fullWidth
               disabled={disabled}
@@ -121,7 +121,7 @@ export default function CartSummary({
         ) : (
           <Button
             type="button"
-            variant="brand"
+            variant="primary"
             size="lg"
             fullWidth
             disabled={disabled}

@@ -1,3 +1,5 @@
+// src/hooks/useAuth.ts
+
 import { useCallback, useEffect, useState } from "react";
 
 import {
@@ -16,7 +18,6 @@ import {
   type SignUpMetadata,
   type UserRole,
 } from "@/libs/auth";
-
 import {
   getSafeErrorMessage,
   logAppError,
@@ -34,11 +35,7 @@ interface UseAuthActions {
   signIn: (
     email: string,
     password: string
-  ) => Promise<{
-    success: boolean;
-    error?: string;
-  }>;
-
+  ) => Promise<{ success: boolean; error?: string }>;
   signUp: (
     email: string,
     password: string,
@@ -48,26 +45,16 @@ interface UseAuthActions {
     requiresEmailConfirmation: boolean;
     error?: string;
   }>;
-
   signOutUser: () => Promise<{
     success: boolean;
     error?: string;
   }>;
-
   sendPasswordReset: (
     email: string
-  ) => Promise<{
-    success: boolean;
-    error?: string;
-  }>;
-
+  ) => Promise<{ success: boolean; error?: string }>;
   changePassword: (
     password: string
-  ) => Promise<{
-    success: boolean;
-    error?: string;
-  }>;
-
+  ) => Promise<{ success: boolean; error?: string }>;
   refresh: () => Promise<void>;
 }
 
@@ -143,15 +130,9 @@ export function useAuth(): UseAuthResult {
     async (
       email: string,
       password: string
-    ): Promise<{
-      success: boolean;
-      error?: string;
-    }> => {
+    ): Promise<{ success: boolean; error?: string }> => {
       try {
-        const result = await signInWithPassword(
-          email,
-          password
-        );
+        const result = await signInWithPassword(email, password);
 
         if (result.error) {
           return {
@@ -204,25 +185,11 @@ export function useAuth(): UseAuthResult {
           };
         }
 
-        /*
-         * Supabase returns a session when the user can be
-         * authenticated immediately. When email confirmation
-         * is required, the user is created but no session is
-         * returned.
-         *
-         * Do NOT read result.requiresEmailConfirmation because
-         * signUpWithPassword() does not expose that property.
-         */
-        const requiresEmailConfirmation =
-          !result.data?.session;
-
-        if (!requiresEmailConfirmation) {
-          await loadAuthState();
-        }
+        await loadAuthState();
 
         return {
           success: true,
-          requiresEmailConfirmation,
+          requiresEmailConfirmation: !result.data?.session,
         };
       } catch (error) {
         logAppError(error, {
@@ -246,10 +213,7 @@ export function useAuth(): UseAuthResult {
       if (!result.success) {
         return {
           success: false,
-          error:
-            result.error
-              ? getSafeErrorMessage(result.error)
-              : "Unable to sign out.",
+          error: result.error,
         };
       }
 
@@ -276,73 +240,57 @@ export function useAuth(): UseAuthResult {
     }
   }, []);
 
-  const sendPasswordReset = useCallback(
-    async (
-      email: string
-    ): Promise<{
-      success: boolean;
-      error?: string;
-    }> => {
-      try {
-        const result = await resetPassword(email);
+  const sendPasswordReset = useCallback(async (email: string) => {
+    try {
+      const result = await resetPassword(email);
 
-        if (result.error) {
-          return {
-            success: false,
-            error: getSafeErrorMessage(result.error),
-          };
-        }
-
-        return {
-          success: true,
-        };
-      } catch (error) {
-        logAppError(error, {
-          context: "useAuth.sendPasswordReset",
-        });
-
+      if (result.error) {
         return {
           success: false,
-          error: getSafeErrorMessage(error),
+          error: getSafeErrorMessage(result.error),
         };
       }
-    },
-    []
-  );
 
-  const changePassword = useCallback(
-    async (
-      password: string
-    ): Promise<{
-      success: boolean;
-      error?: string;
-    }> => {
-      try {
-        const result = await updatePassword(password);
+      return {
+        success: true,
+      };
+    } catch (error) {
+      logAppError(error, {
+        context: "useAuth.sendPasswordReset",
+      });
 
-        if (result.error) {
-          return {
-            success: false,
-            error: getSafeErrorMessage(result.error),
-          };
-        }
+      return {
+        success: false,
+        error: getSafeErrorMessage(error),
+      };
+    }
+  }, []);
 
-        return {
-          success: true,
-        };
-      } catch (error) {
-        logAppError(error, {
-          context: "useAuth.changePassword",
-        });
+  const changePassword = useCallback(async (password: string) => {
+    try {
+      const result = await updatePassword(password);
 
+      if (result.error) {
         return {
           success: false,
-          error: getSafeErrorMessage(error),
+          error: getSafeErrorMessage(result.error),
         };
       }
-    },
-    []
-  );
+
+      return {
+        success: true,
+      };
+    } catch (error) {
+      logAppError(error, {
+        context: "useAuth.changePassword",
+      });
+
+      return {
+        success: false,
+        error: getSafeErrorMessage(error),
+      };
+    }
+  }, []);
 
   const refresh = useCallback(async () => {
     try {

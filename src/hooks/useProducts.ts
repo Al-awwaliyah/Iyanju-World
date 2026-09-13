@@ -1,3 +1,3 @@
-import { useState } from "react";
-export function useProducts(){const [loading]=useState(false);return {loading};}
-export default useProducts;
+import { useMarketplaceProducts } from "./useMarketplace";
+export const useProducts = useMarketplaceProducts;
+export default useMarketplaceProducts;

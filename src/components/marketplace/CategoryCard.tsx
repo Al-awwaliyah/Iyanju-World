@@ -10,49 +10,14 @@ export interface CategoryCardProps {
   className?: string;
 }
 
-export default function CategoryCard({
-  name,
-  slug,
-  imageUrl,
-  icon,
-  productCount,
-  className = "",
-}: CategoryCardProps) {
+export default function CategoryCard({ name, slug, imageUrl, icon, productCount, className = "" }: CategoryCardProps) {
   return (
-    <Link
-      to={`/category/${slug}`}
-      className={[
-        "group flex flex-col items-center gap-2 rounded-lg border border-slate-100 bg-white p-3 text-center transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-md",
-        className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
-    >
-      <div className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-brand-50 sm:h-20 sm:w-20">
-        {imageUrl ? (
-          <img
-            src={imageUrl}
-            alt={name}
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
-          />
-        ) : (
-          <span className="text-2xl font-semibold text-brand-600">
-            {icon ?? name.charAt(0).toUpperCase()}
-          </span>
-        )}
+    <Link to={`/category/${slug}`} className={["group flex min-h-32 flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-4 text-center shadow-sm transition hover:-translate-y-1 hover:border-[#082A63]/20 hover:shadow-md", className].join(" ")}>
+      <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-[#eef3fb] text-[#082A63]">
+        {imageUrl ? <img src={imageUrl} alt="" className="h-full w-full object-cover" /> : icon ?? <span className="text-xl font-bold">{name.charAt(0)}</span>}
       </div>
-
-      <h3 className="line-clamp-2 text-xs font-medium text-slate-700 group-hover:text-brand-600 sm:text-sm">
-        {name}
-      </h3>
-
-      {productCount !== undefined && (
-        <p className="text-[11px] text-slate-400">
-          {productCount.toLocaleString()}{" "}
-          {productCount === 1 ? "product" : "products"}
-        </p>
-      )}
+      <h3 className="mt-3 line-clamp-2 text-sm font-semibold text-slate-800 group-hover:text-[#082A63]">{name}</h3>
+      {productCount !== undefined && <p className="mt-1 text-[11px] text-slate-400">{productCount} products</p>}
     </Link>
   );
 }

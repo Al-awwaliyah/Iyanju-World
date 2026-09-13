@@ -11,9 +11,7 @@ type ButtonVariant =
   | "secondary"
   | "outline"
   | "ghost"
-  | "danger"
-  | "brand"
-  | "brand-outline";
+  | "danger";
 
 type ButtonSize = "sm" | "md" | "lg" | "icon";
 
@@ -41,10 +39,6 @@ const variantStyles: Record<ButtonVariant, string> = {
     "bg-transparent text-slate-700 hover:bg-slate-100 focus:ring-slate-400",
   danger:
     "bg-red-600 text-white hover:bg-red-700 focus:ring-red-600",
-  brand:
-    "bg-brand-500 text-white hover:bg-brand-600 focus:ring-brand-500",
-  "brand-outline":
-    "border border-brand-500 bg-white text-brand-600 hover:bg-brand-50 focus:ring-brand-500",
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
