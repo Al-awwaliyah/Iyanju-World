@@ -282,6 +282,7 @@ as $$
       and p.is_available = true
       and p.stock_quantity > 0
       and b.status = 'active'
+      and b.is_active = true
       and c.is_active = true
   );
 $$;
@@ -390,6 +391,7 @@ using (
     from public.businesses b
     where b.id = products.business_id
       and b.status = 'active'
+      and b.is_active = true
   )
   and exists (
     select 1
