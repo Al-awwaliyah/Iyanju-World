@@ -18,6 +18,7 @@ import {
   type SignUpMetadata,
   type UserRole,
 } from "@/libs/auth";
+
 import {
   getSafeErrorMessage,
   logAppError,
@@ -34,27 +35,41 @@ interface UseAuthState {
 interface UseAuthActions {
   signIn: (
     email: string,
-    password: string
-  ) => Promise<{ success: boolean; error?: string }>;
+    password: string,
+  ) => Promise<{
+    success: boolean;
+    error?: string;
+  }>;
+
   signUp: (
     email: string,
     password: string,
-    metadata: SignUpMetadata
+    metadata: SignUpMetadata,
   ) => Promise<{
     success: boolean;
     requiresEmailConfirmation: boolean;
     error?: string;
   }>;
+
   signOutUser: () => Promise<{
     success: boolean;
     error?: string;
   }>;
+
   sendPasswordReset: (
-    email: string
-  ) => Promise<{ success: boolean; error?: string }>;
+    email: string,
+  ) => Promise<{
+    success: boolean;
+    error?: string;
+  }>;
+
   changePassword: (
-    password: string
-  ) => Promise<{ success: boolean; error?: string }>;
+    password: string,
+  ) => Promise<{
+    success: boolean;
+    error?: string;
+  }>;
+
   refresh: () => Promise<void>;
 }
 
@@ -127,12 +142,12 @@ export function useAuth(): UseAuthResult {
   }, [loadAuthState]);
 
   const signIn = useCallback(
-    async (
-      email: string,
-      password: string
-    ): Promise<{ success: boolean; error?: string }> => {
+    async (email: string, password: string) => {
       try {
-        const result = await signInWithPassword(email, password);
+        const result = await signInWithPassword(
+          email,
+          password,
+        );
 
         if (result.error) {
           return {
@@ -157,24 +172,20 @@ export function useAuth(): UseAuthResult {
         };
       }
     },
-    [loadAuthState]
+    [loadAuthState],
   );
 
   const signUp = useCallback(
     async (
       email: string,
       password: string,
-      metadata: SignUpMetadata
-    ): Promise<{
-      success: boolean;
-      requiresEmailConfirmation: boolean;
-      error?: string;
-    }> => {
+      metadata: SignUpMetadata,
+    ) => {
       try {
         const result = await signUpWithPassword(
           email,
           password,
-          metadata
+          metadata,
         );
 
         if (result.error) {
@@ -185,11 +196,10 @@ export function useAuth(): UseAuthResult {
           };
         }
 
-        await loadAuthState();
-
         return {
           success: true,
-          requiresEmailConfirmation: !result.data?.session,
+          requiresEmailConfirmation:
+            Boolean(result.requiresEmailConfirmation),
         };
       } catch (error) {
         logAppError(error, {
@@ -203,17 +213,17 @@ export function useAuth(): UseAuthResult {
         };
       }
     },
-    [loadAuthState]
+    [],
   );
 
   const signOutUser = useCallback(async () => {
     try {
       const result = await signOut();
 
-      if (!result.success) {
+      if (result.error) {
         return {
           success: false,
-          error: result.error,
+          error: getSafeErrorMessage(result.error),
         };
       }
 
@@ -240,74 +250,80 @@ export function useAuth(): UseAuthResult {
     }
   }, []);
 
-  const sendPasswordReset = useCallback(async (email: string) => {
-    try {
-      const result = await resetPassword(email);
+  const sendPasswordReset = useCallback(
+    async (email: string): Promise<{
+      success: boolean;
+      error?: string;
+    }> => {
+      try {
+        const result = await resetPassword(email);
 
-      if (result.error) {
+        if (result.error) {
+          return {
+            success: false,
+            error: getSafeErrorMessage(result.error),
+          };
+        }
+
+        return {
+          success: true,
+        };
+      } catch (error) {
+        logAppError(error, {
+          context: "useAuth.sendPasswordReset",
+        });
+
         return {
           success: false,
-          error: getSafeErrorMessage(result.error),
+          error: getSafeErrorMessage(error),
         };
       }
+    },
+    [],
+  );
 
-      return {
-        success: true,
-      };
-    } catch (error) {
-      logAppError(error, {
-        context: "useAuth.sendPasswordReset",
-      });
+  const changePassword = useCallback(
+    async (password: string): Promise<{
+      success: boolean;
+      error?: string;
+    }> => {
+      try {
+        const result = await updatePassword(password);
 
-      return {
-        success: false,
-        error: getSafeErrorMessage(error),
-      };
-    }
-  }, []);
+        if (result.error) {
+          return {
+            success: false,
+            error: getSafeErrorMessage(result.error),
+          };
+        }
 
-  const changePassword = useCallback(async (password: string) => {
-    try {
-      const result = await updatePassword(password);
+        return {
+          success: true,
+        };
+      } catch (error) {
+        logAppError(error, {
+          context: "useAuth.changePassword",
+        });
 
-      if (result.error) {
         return {
           success: false,
-          error: getSafeErrorMessage(result.error),
+          error: getSafeErrorMessage(error),
         };
       }
-
-      return {
-        success: true,
-      };
-    } catch (error) {
-      logAppError(error, {
-        context: "useAuth.changePassword",
-      });
-
-      return {
-        success: false,
-        error: getSafeErrorMessage(error),
-      };
-    }
-  }, []);
+    },
+    [],
+  );
 
   const refresh = useCallback(async () => {
     try {
       await refreshSession();
 
-      const [user, profile] = await Promise.all([
+      await Promise.all([
         getCurrentUser(),
         getCurrentProfile(),
       ]);
 
-      setState({
-        user,
-        profile,
-        role: profile?.role ?? null,
-        loading: false,
-        initialized: true,
-      });
+      await loadAuthState();
     } catch (error) {
       logAppError(error, {
         context: "useAuth.refresh",
