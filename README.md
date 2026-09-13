@@ -227,45 +227,5 @@ The exact settlement and payout rules are controlled by the platform's financial
 
 # 4. Order Lifecycle
 
-A typical order follows this flow:
 
-```text
-Customer discovers product
-        ↓
-Adds product to cart
-        ↓
-Checkout
-        ↓
-Select delivery location
-        ↓
-Calculate product + delivery total
-        ↓
-Select payment method
-        ↓
-Payment
-        ↓
-Server-side payment verification
-        ↓
-Order marked as paid
-        ↓
-Business receives order
-        ↓
-Business confirms order
-        ↓
-Delivery request created
-        ↓
-Eligible riders notified
-        ↓
-Rider accepts delivery
-        ↓
-Rider picks up order
-        ↓
-Order out for delivery
-        ↓
-Customer receives order
-        ↓
-Customer confirms delivery
-        ↓
-Order completed
-        ↓
-Earnings become eligible for settlement
+
