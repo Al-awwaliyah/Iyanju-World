@@ -101,6 +101,11 @@ function App() {
         />
 
         <Route
+          path="/product/:productId"
+          element={<ProductDetails />}
+        />
+
+        <Route
           path="/category/:slug"
           element={<Category />}
         />
@@ -109,6 +114,11 @@ function App() {
 
         <Route
           path="/businesses/:slug"
+          element={<BusinessDetails />}
+        />
+
+        <Route
+          path="/store/:slug"
           element={<BusinessDetails />}
         />
 
@@ -153,6 +163,42 @@ function App() {
           CUSTOMER
       ========================== */}
       <Route element={<CustomerLayout />}>
+        <Route
+          path="/account"
+          element={
+            <ProtectedRoute allowedRoles={["customer"]}>
+              <CustomerDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/orders"
+          element={
+            <ProtectedRoute allowedRoles={["customer"]}>
+              <CustomerOrders />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/cart"
+          element={
+            <ProtectedRoute allowedRoles={["customer"]}>
+              <CustomerCart />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/checkout"
+          element={
+            <ProtectedRoute allowedRoles={["customer"]}>
+              <CustomerCheckout />
+            </ProtectedRoute>
+          }
+        />
+
         <Route
           path="/customer/dashboard"
           element={
