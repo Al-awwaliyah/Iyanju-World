@@ -36,7 +36,7 @@ export default function BusinessCard(props: BusinessCardProps) {
     className = "",
   } = source;
   const safeName = name ?? "Business";
-  const safeSlug = slug ?? id ?? "";
+  const safeSlug = slug ?? source.id ?? "";
   const location = [city, state]
     .filter(Boolean)
     .join(", ");

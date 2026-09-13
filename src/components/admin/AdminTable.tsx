@@ -20,9 +20,7 @@ export interface AdminTableColumn<T> {
   id: string;
   header: string;
   accessor?: keyof T | ((row: T) => ReactNode);
-  render?:
-    | ((value: unknown, row: T, index: number) => ReactNode)
-    | ((value: unknown) => ReactNode);
+  render?: (value: any, row: T, index: number) => ReactNode;
   align?: "left" | "center" | "right";
   width?: string;
   sortable?: boolean;
@@ -70,9 +68,7 @@ export interface AdminTableProps<T> {
   emptyTitle?: string;
   emptyDescription?: string;
   emptyMessage?: string;
-  emptyIcon?: React.ComponentType<{
-    className?: string;
-  }>;
+  emptyIcon?: LucideIcon | ReactNode;
 
   actions?: AdminTableAction<T>[];
   getRowActions?: (row: T) =>
@@ -595,6 +591,11 @@ export default function AdminTable<
                           >
                             {column.render
                               ? column.render(
+                                  typeof column.accessor === "function"
+                                    ? column.accessor(row)
+                                    : column.accessor
+                                      ? row[column.accessor]
+                                      : undefined,
                                   row,
                                   index,
                                 )
