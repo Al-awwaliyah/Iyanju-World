@@ -386,4 +386,3 @@ export function useAuth(): UseAuthResult {
 }
 
 export default useAuth;
-
