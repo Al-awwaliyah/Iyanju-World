@@ -406,7 +406,7 @@ export async function signOut() {
 
     return {
       success: false,
-      error,
+      error: getSafeErrorMessage(error),
     };
   }
 }

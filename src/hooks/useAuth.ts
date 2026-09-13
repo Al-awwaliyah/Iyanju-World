@@ -270,10 +270,10 @@ export function useAuth(): UseAuthResult {
     try {
       const result = await updatePassword(password);
 
-      if (!result.success) {
+      if (result.error) {
         return {
           success: false,
-          error: result.error,
+          error: getSafeErrorMessage(result.error),
         };
       }
 
